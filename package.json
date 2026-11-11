@@ -1,0 +1,24 @@
+{
+  "name": "mars-base-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@payai/facilitator": "^2.4.6",
+    "@x402/core": "^2.30.0",
+    "@x402/evm": "^2.30.0",
+    "@x402/extensions": "^2.30.0",
+    "@x402/hono": "^2.30.0",
+    "hono": "^4.13.17"
+  },
+  "devDependencies": {
+    "netlify-cli": "^27.16.3"
+  }
+}

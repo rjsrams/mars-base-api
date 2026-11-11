@@ -9,7 +9,12 @@ const app = new Hono();
 
 const PAY_TO = "0x781e2C988A06C096694054479e87A05D386212C4";
 const NETWORK = "eip155:8453";
+const V1_NETWORK = "base";
 const PRICE = "$0.005";
+const AMOUNT = "5000";
+const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const RESOURCE_URL = "https://mars-base-api.netlify.app/api/prices";
+const DESCRIPTION = "Live Bitcoin and Ethereum prices in USD";
 
 const facilitatorClient = new HTTPFacilitatorClient(facilitator);
 
@@ -28,10 +33,34 @@ app.use(
             payTo: PAY_TO,
           },
         ],
-        description: "Live Bitcoin and Ethereum prices in USD",
+        description: DESCRIPTION,
         mimeType: "application/json",
         serviceName: "MARS Base.API",
         tags: ["crypto", "prices", "bitcoin", "ethereum", "base"],
+        unpaidResponseBody: () => ({
+          contentType: "application/json",
+          body: {
+            x402Version: 1,
+            error: "Payment required",
+            accepts: [
+              {
+                scheme: "exact",
+                network: V1_NETWORK,
+                maxAmountRequired: AMOUNT,
+                resource: RESOURCE_URL,
+                description: DESCRIPTION,
+                mimeType: "application/json",
+                payTo: PAY_TO,
+                maxTimeoutSeconds: 300,
+                asset: USDC,
+                extra: {
+                  name: "USD Coin",
+                  version: "2",
+                },
+              },
+            ],
+          },
+        }),
         extensions: {
           ...declareDiscoveryExtension({
             output: {

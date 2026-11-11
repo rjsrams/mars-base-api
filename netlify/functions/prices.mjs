@@ -9,12 +9,25 @@ const app = new Hono();
 
 const PAY_TO = "0x781e2C988A06C096694054479e87A05D386212C4";
 const NETWORK = "eip155:8453";
-const V1_NETWORK = "base";
 const PRICE = "$0.005";
 const AMOUNT = "5000";
 const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const RESOURCE_URL = "https://mars-base-api.netlify.app/api/prices";
 const DESCRIPTION = "Live Bitcoin and Ethereum prices in USD";
+
+const DISCOVERY_EXTENSION = declareDiscoveryExtension({
+  output: {
+    example: {
+      provider: "CoinGecko",
+      currency: "USD",
+      prices: {
+        bitcoin: { usd: 95000 },
+        ethereum: { usd: 3000 },
+      },
+      updatedAt: "2026-11-10T00:00:00.000Z",
+    },
+  },
+});
 
 const facilitatorClient = new HTTPFacilitatorClient(facilitator);
 
@@ -40,41 +53,34 @@ app.use(
         unpaidResponseBody: () => ({
           contentType: "application/json",
           body: {
-            x402Version: 1,
+            x402Version: 2,
             error: "Payment required",
+            resource: {
+              url: RESOURCE_URL,
+              description: DESCRIPTION,
+              mimeType: "application/json",
+              serviceName: "MARS Base.API",
+              tags: ["crypto", "prices", "bitcoin", "ethereum", "base"],
+            },
             accepts: [
               {
                 scheme: "exact",
-                network: V1_NETWORK,
-                maxAmountRequired: AMOUNT,
-                resource: RESOURCE_URL,
-                description: DESCRIPTION,
-                mimeType: "application/json",
+                network: NETWORK,
+                amount: AMOUNT,
+                asset: USDC,
                 payTo: PAY_TO,
                 maxTimeoutSeconds: 300,
-                asset: USDC,
                 extra: {
                   name: "USD Coin",
                   version: "2",
                 },
               },
             ],
+            extensions: DISCOVERY_EXTENSION,
           },
         }),
         extensions: {
-          ...declareDiscoveryExtension({
-            output: {
-              example: {
-                provider: "CoinGecko",
-                currency: "USD",
-                prices: {
-                  bitcoin: { usd: 95000 },
-                  ethereum: { usd: 3000 },
-                },
-                updatedAt: "2026-11-10T00:00:00.000Z",
-              },
-            },
-          }),
+          ...DISCOVERY_EXTENSION,
         },
       },
     },
